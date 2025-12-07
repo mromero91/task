@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AppController } from './presentation/controllers/app.controller';
-import { GetGreetingUseCase } from './application/use-cases/get-greeting.use-case';
-import { GreetingRepositoryImpl } from './infrastructure/repositories/greeting.repository.impl';
+import { RouterModule } from '@nestjs/core';
+import { UserEntity } from './infrastructure/entities/user.entity';
+import { TaskEntity } from './infrastructure/entities/task.entity';
+import { AuthModule } from './presentation/modules/auth.module';
+import { TaskModule } from './presentation/modules/task.module';
+import { routes } from './presentation/routes';
 
 @Module({
   imports: [
@@ -19,19 +22,16 @@ import { GreetingRepositoryImpl } from './infrastructure/repositories/greeting.r
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        entities: [],
+        entities: [UserEntity, TaskEntity],
         synchronize: true,
       }),
       inject: [ConfigService],
     }),
+    AuthModule,
+    TaskModule,
+    RouterModule.register(routes),
   ],
-  controllers: [AppController],
-  providers: [
-    GetGreetingUseCase,
-    {
-      provide: 'GreetingRepository',
-      useClass: GreetingRepositoryImpl,
-    },
-  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
